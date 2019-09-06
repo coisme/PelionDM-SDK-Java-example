@@ -60,7 +60,7 @@ Let's create a sample program to list first 10 devices from your account's devic
 
 Put this file in the `app` directory.
 
-```java:ListDevice.java
+``` java:ListDevice.java
 import java.io.IOException;
 
 import com.arm.mbed.cloud.sdk.common.MbedCloudException;
