@@ -1,9 +1,10 @@
 # An example of Pelion Device Management SDK for Java
 
+Through this page, you can develop a simple command-line app and webapp that communicate Pelion Device Management using Pelion Device Management SDK for Java.
 
 # Prerequisites
 * git
-* Java Development Kit - [OpenJDK](https://jdk.java.net/12/) or other JDK
+* Java Development Kit - [OpenJDK](https://jdk.java.net/12/) or [Oracle JDK](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * Pelion Device Management Account - [Get a free account](https://os.mbed.com/pelion-free-tier/)
 * Pelion Device Management API key - [Generating an API key](https://www.pelion.com/docs/device-management/current/integrate-web-app/api-keys.html#generating-an-api-key)
 
