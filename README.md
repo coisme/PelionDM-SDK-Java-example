@@ -9,7 +9,7 @@
 
 # Create working directory
 Create a working directory and move there.
-```
+``` Bash
 $ mkdir work
 $ cd work
 ```
@@ -19,39 +19,39 @@ Create jar file, which is an archive file of Pelion Device Management SDK for Ja
 
 ## Clone the SDK repository
 Clone the SDK repository from GitHub to get the SDK source codes.
-```
+``` Bash
 $ git clone https://github.com/ARMmbed/mbed-cloud-sdk-java.git
 ```
 
 ## Build jar
 Move to the SDK directory.
-```
+``` Bash
 $ cd mbed-cloud-sdk-java
 ```
 Build jar file using gradle.
-```
+``` Bash
 $ ./gradlew shadowjar
 ```
 After the command done, jar file is created at `build/libs/mbed-cloud-sdk-2.4.0-full.jar`. Note that SDK version number could be different.
 
-# Create Sample Project
+# Create Sample App
 Move to the working directory root.
-```
+``` Bash
 $ cd ..
 ```
 Create a sample project directory `app` and move there.
-```
+``` Bash
 $ mkdir app
 $ cd app
 ```
 
 ## Set API key
 You need to set your API key in your project to communicate with Pelion Device Management Service. To do that, create `.env` file in your project.
-```
+``` Bash
 $ echo "MBED_CLOUD_SDK_API_KEY=<your API key>" > .env
 ```
 Replace `<your API key>` with your API key. For example,
-```
+``` Bash
 # API key below is dummy.
 $ echo "MBED_CLOUD_SDK_API_KEY=ak_1MDE1YTllNDRiZjA5MDI0MjBhMDE0MDBhMDAwMDAwMDA0168df54c11412dc3bb0a403000000003KQbrhr0fcC90J47uSpbk8nF7Y9bietx" > .env
 ```
@@ -60,7 +60,7 @@ Let's create a sample program to list first 10 devices from your account's devic
 
 Put this file in the `app` directory.
 
-```java
+``` Java
 // File name: ListDevice.java
 import java.io.IOException;
 
@@ -88,13 +88,13 @@ public class ListDevice {
 
 ## Compile
 Compile the code. You need to specify the jar file created above. Note that the version number could be different.
-```
-$ javac -cp ../../mbed-cloud-sdk-java/build/libs/mbed-cloud-sdk-2.4.0-full.jar ListDevice.java
+``` Bash
+$ javac -cp "../../mbed-cloud-sdk-java/build/libs/mbed-cloud-sdk-2.4.0-full.jar" ListDevice.java
 ```
 
 ## Run
 Run the sample program.
-```
+``` Bash
 $ java -cp "../../mbed-cloud-sdk-java/build/libs/mbed-cloud-sdk-2.4.0-full.jar:./" ListDevice
 ```
 You'll get the device list from your device directory. Here's a sample output.
@@ -114,3 +114,85 @@ Hello device ARMMBED4 Test Device 2
 Hello device Dougs EA Test Device at Work - Ethernet
 Hello device Dougs OOB Test at Home
 ```
+
+# Create Sample Webapp
+Let's create a very simple sample webapp based on above program.
+
+Move to the working directory root, create new directory `webapp`, and move there.
+``` Bash
+$ cd ..
+$ mkdir webapp
+$ cd webapp
+```
+Copy `.env` to `webapp` directory.
+``` Bash
+$ cp ../app/.env .
+```
+
+## Create sample webapp code
+Put this file in `webapp` directory.
+``` Java
+// filename: MinimalHTTPServer.java
+/* Referenced: 
+ * http://www.java2s.com/Code/Java/Network-Protocol/MinimalHTTPServerbyusingcomsunnethttpserverHttpServer.htm
+ */
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+
+import com.arm.mbed.cloud.sdk.common.MbedCloudException;
+import com.arm.mbed.cloud.sdk.devices.model.DeviceListDao;
+import com.arm.mbed.cloud.sdk.devices.model.DeviceListOptions;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+public class MinimalHTTPServer {
+  public static void main(String[] args) throws IOException {
+    HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+    server.createContext("/devicelist", new Handler());
+    server.start();
+  }
+}
+
+class Handler implements HttpHandler {
+  public void handle(HttpExchange xchg) throws IOException {
+    StringBuffer response = new StringBuffer();
+
+    response.append("<html>\n<body>\n<h1>Device List</h1>\n<table>");
+
+    try (DeviceListDao dao = new DeviceListDao()) {
+
+      // Listing the first 10 devices on your Pelion Device Management account
+      dao.list((new DeviceListOptions()).maxResults(10))
+        .forEach(device -> response.append("<tr><td>" + device.getEndpointName() 
+          + "</td><td>" + device.getName() + "</td></tr>\n"));
+    } catch (MbedCloudException | IOException exception) {
+      exception.printStackTrace();
+    }
+
+    response.append("</table></body>\n</html>");
+
+    xchg.sendResponseHeaders(200, response.length());
+    OutputStream os = xchg.getResponseBody();
+    os.write(response.toString().getBytes());
+    os.close();
+  }
+}
+```
+
+## Compile
+Compile the code. You need to specify the jar file created above. Note that the version number could be different.
+``` Bash
+javac -cp "../../mbed-cloud-sdk-java/build/libs/mbed-cloud-sdk-2.4.0-full.jar" MinimalHTTPServer.java
+```
+
+## Run
+Run the sample program.
+``` Bash
+$ java -cp "../../mbed-cloud-sdk-java/build/libs/mbed-cloud-sdk-2.4.0-full.jar:./" MinimalHTTPServer
+```
+You may see nothing on the command line. Launch your browser and access [http://localhost:8000/devicelist](http://localhost:8000/devicelist). You'll see device list on your browser.
+
+![devicelist](./img/devicelist.png)
+
