@@ -1,4 +1,4 @@
-# Pelion Device Management SDK for Java Tutorial
+# An example of Pelion Device Management SDK for Java
 
 
 # Prerequisites
