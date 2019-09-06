@@ -39,7 +39,7 @@ Move to the working directory root.
 ```
 $ cd ..
 ```
-Create a sample project and move there.
+Create a sample project directory `app` and move there.
 ```
 $ mkdir app
 $ cd app
